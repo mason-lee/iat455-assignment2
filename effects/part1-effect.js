@@ -27,11 +27,12 @@ function Part1Effect() {
 			step: 1
 		}
 	}
-	var self = this;
-	var width = MEDIA.width;
-	var height = MEDIA.height;
+	var self = this,	
+		width = MEDIA.width,
+		height = MEDIA.height;
 
 	this.foregroundCanvas = new MEDIA.Canvas();
+
 	var foreground = new Image();
 	foreground.onload = function() {
 		self.foregroundCanvas.context.drawImage(
@@ -47,22 +48,24 @@ function Part1Effect() {
 
 Part1Effect.prototype = {
 	draw: function() {
-		var canvas = this.canvas;
+		var canvas = this.canvas,
+			maskCanvas = this.maskCanvas;
+
 		APP.drawImage(canvas);
-		var maskCanvas = this.maskCanvas;
 
-		var maskWidth = this.mask.width;
-		var maskHeight = this.mask.height;
-
-		var maskX = this.controls.x.value;
-		var maskY = this.controls.y.value;
-		var maskScale = this.controls.scale.value;
-		var maskRotation = this.controls.rotation.value;
+		var maskWidth = this.maskCanvas.width,
+			maskHeight = this.maskCanvas.height,
+			maskX = this.controls.x.value,
+			maskY = this.controls.y.value,
+			maskScale = this.controls.scale.value,
+			maskRotation = this.controls.rotation.value;
 		
+		// Clear the pixels of the maskCanvas
 		maskCanvas.context.clearRect(0, 0, MEDIA.width, MEDIA.height);
 
-		var xOffset = this.mask.width/-2;
-		var yOffset = this.mask.height/-2;
+		// Calculate the offset to use it later for translation
+		var xOffset = maskWidth/-2,
+			yOffset = maskHeight/-2;
 
 		// Save the default state
 		maskCanvas.context.save();
@@ -72,11 +75,11 @@ Part1Effect.prototype = {
 		maskCanvas.context.rotate(maskRotation* Math.PI/180);
 		// Scale the coordinate
 		maskCanvas.context.scale(maskScale, maskScale);
-		
+		// Translate the mask canvas offset amounts to draw it on the right position		
 		maskCanvas.context.translate(xOffset, yOffset);
 
 		// Change the position
-		maskCanvas.context.drawImage(this.mask, maskX, maskY, this.maskCanvas.width, this.maskCanvas.height);
+		maskCanvas.context.drawImage(this.mask, maskX, maskY, maskWidth, maskHeight);
 		maskCanvas.context.restore();
 
 		var img = canvas.getImageData();
@@ -115,26 +118,26 @@ Part1Effect.prototype = {
 			/*
 				Screen Blending
 			 */
-			var r = 255 - (255 - imgR) * (255 - foregroundR);
-			var g = 255 - (255 - imgG) * (255 - foregroundG);
-			var b = 255 - (255 - imgB) * (255 - foregroundB);
+			// var r = 255 - (255 - imgR) * (255 - foregroundR);
+			// var g = 255 - (255 - imgG) * (255 - foregroundG);
+			// var b = 255 - (255 - imgB) * (255 - foregroundB);
 
-			if (r < 0) { r = 0; }
-			if (g < 0) { g = 0; }
-			if (b < 0) { b = 0; }
+			// if (r < 0) { r = 0; }
+			// if (g < 0) { g = 0; }
+			// if (b < 0) { b = 0; }
 
-			imgData[i] = 
-				(r & 255) |
-				((g & 255) << 8) |
-				((b & 255) << 16) |
-				(255 << 24);
+			// imgData[i] = 
+			// 	(r & 255) |
+			// 	((g & 255) << 8) |
+			// 	((b & 255) << 16) |
+			// 	(255 << 24);
 
 			
-			// imgData[i] = 
-			// 	(imgR & 255) |
-			// 	((imgG & 255) << 8) |
-			// 	((imgB & 255) << 16) |
-			// 	(255 << 24);
+			imgData[i] = 
+				(imgR & 255) |
+				((imgG & 255) << 8) |
+				((imgB & 255) << 16) |
+				(255 << 24);
 		}
 		canvas.putImageData(img);
 	}
